@@ -1,0 +1,36 @@
+import pandas as pd
+from statistics import mean, mode, median, multimode
+import matplotlib.pyplot as plt
+from scipy import stats
+
+data = {
+    'age': [21, 22, 22, 23, 24, 25, 25],
+    'salary': [2500, 2700, 2700, 2800, 2900, 3000, 3000]
+}
+
+df = pd.DataFrame(data)
+
+print("Central tendency measures:\n")
+
+for column in df.columns:
+    values = df[column]
+    print(f"Column: {column}")
+    print(f"Mean: {mean(values)}")
+    print(f"Median: {median(values)}")
+    print(f"Mode: {mode(values)}")
+    print(f"Multimode: {multimode(values)}")
+    print(f"Standard Deviation: {values.std()}\n")
+
+for column in df.columns:
+    plt.hist(df[column], bins=5, color='skyblue', edgecolor='black')
+    plt.title(f"Histogram of {column}")
+    plt.xlabel("Value")
+    plt.ylabel("Frequency")
+    plt.show()
+
+# Example: One-sample t-test of 'salary' against mean=2600
+t_stat, p_val = stats.ttest_1samp(df['salary'], 2600)
+
+print("\nStatistical inference:")
+print(f"T-statistic: {t_stat}")
+print(f"P-value: {p_val}")
