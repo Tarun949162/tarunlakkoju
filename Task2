@@ -1,0 +1,30 @@
+import seaborn as sns
+import pandas as pd
+import numpy as np
+from scipy import stats
+
+# Load the 'tips' dataset
+df = sns.load_dataset("tips")
+
+print("First 5 rows:\n", df.head())
+
+print("\nDataset info:")
+df.info()
+
+print("\nSummary Statistics:\n", df.describe())
+
+print("\nCentral tendency (total_bill) using Numpy:")
+print("Mean:", np.mean(df['total_bill']))
+print("Median:", np.median(df['total_bill']))
+
+mode_result = stats.mode(df['total_bill'], keepdims=False)
+print("Mode:", mode_result.mode[0])
+
+print("\nCentral tendency (total_bill) using pandas:")
+print("Mean:", df['total_bill'].mean())
+print("Median:", df['total_bill'].median())
+print("Mode:", df['total_bill'].mode().values[0])
+
+print("\nGender Distribution:\n", df['sex'].value_counts())
+
+print("\nDay Distribution:\n", df['day'].value_counts())
