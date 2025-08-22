@@ -1,0 +1,46 @@
+import numpy as np
+import pandas as pd
+from scipy.stats import skew, kurtosis
+
+# Example dataset (you can change this list)
+data = [2, 4, 5, 7, 8, 10, 12, 15, 30]
+
+# Convert to pandas Series
+series = pd.Series(data)
+
+# --- Outlier Detection using IQR ---
+Q1 = series.quantile(0.25)   # 25th percentile
+Q3 = series.quantile(0.75)   # 75th percentile
+IQR = Q3 - Q1
+
+# Outlier boundaries
+lower_bound = Q1 - 1.5 * IQR
+upper_bound = Q3 + 1.5 * IQR
+
+# Identify outliers
+outliers = series[(series < lower_bound) | (series > upper_bound)]
+
+print("Data:", data)
+print("Q1:", Q1, " Q3:", Q3, " IQR:", IQR)
+print("Lower Bound:", lower_bound, " Upper Bound:", upper_bound)
+print("Outliers:", list(outliers))
+
+# --- Skewness and Kurtosis ---
+data_skewness = skew(series)
+data_kurtosis = kurtosis(series, fisher=False)  # fisher=False => normal=3
+
+print("\nSkewness:", data_skewness)
+if data_skewness > 0:
+    print(" → Distribution is Right-Skewed (tail on right)")
+elif data_skewness < 0:
+    print(" → Distribution is Left-Skewed (tail on left)")
+else:
+    print(" → Distribution is Symmetric")
+
+print("Kurtosis:", data_kurtosis)
+if data_kurtosis > 3:
+    print(" → Leptokurtic (heavy tails, more outliers)")
+elif data_kurtosis < 3:
+    print(" → Platykurtic (light tails, flatter)")
+else:
+    print(" → Mesokurtic (normal-like)")
