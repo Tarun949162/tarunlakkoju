@@ -1,0 +1,23 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt  # fixed import
+from scipy import stats
+from statistics import mean, median, multimode  # importing these functions
+
+data = [23, 25, 29, 35, 32, 40, 23, 30, 36, 27]
+
+df = pd.Series(data)  # fixed typo
+
+print("summary statistics:")
+print(df.describe())  # added parentheses
+
+print("variance:", df.var())  # added comma
+
+# Since 'column' is not defined, if you want to print the data itself:
+print(f"attribute: data")  # or you could specify column name if you had one
+
+print(f"mean: {mean(data)}")  # fixed syntax and variable names
+print(f"median: {median(data)}")
+print(f"mode: {multimode(data)}")  # multimode returns a list
+
+print()
