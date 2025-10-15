@@ -1,0 +1,77 @@
+# Install pyclustering for K-Medoids (if not installed)
+!pip install pyclustering
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from pyclustering.cluster.kmedoids import kmedoids
+from pyclustering.utils import calculate_distance_matrix
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
+
+# Load Iris dataset
+data = load_iris()
+X = data.data
+
+# Normalize features for better clustering performance
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Number of clusters (iris dataset has 3 classes)
+k = 3
+
+# 1. K-Means Clustering
+kmeans = KMeans(n_clusters=k, random_state=42)
+kmeans_labels = kmeans.fit_predict(X_scaled)
+
+# 2. K-Medoids Clustering using pyclustering
+# Need initial medoids indices; choose k random samples
+np.random.seed(42)
+initial_medoids = np.random.choice(len(X_scaled), k, replace=False)
+
+# Calculate distance matrix
+distance_matrix = calculate_distance_matrix(X_scaled)
+
+# Create K-Medoids instance
+kmedoids_instance = kmedoids(distance_matrix, initial_medoids, data_type='distance_matrix')
+kmedoids_instance.process()
+kmedoids_clusters = kmedoids_instance.get_clusters()
+
+# Convert clusters to label array
+kmedoids_labels = np.zeros(len(X_scaled))
+for cluster_id, cluster in enumerate(kmedoids_clusters):
+    for idx in cluster:
+        kmedoids_labels[idx] = cluster_id
+
+# Evaluation Metrics function
+def evaluate_clustering(X, labels, method_name):
+    sil_score = silhouette_score(X, labels)
+    ch_score = calinski_harabasz_score(X, labels)
+    db_score = davies_bouldin_score(X, labels)
+    print(f"--- {method_name} ---")
+    print(f"Silhouette Score: {sil_score:.4f} (higher is better, max=1)")
+    print(f"Calinski-Harabasz Index: {ch_score:.4f} (higher is better)")
+    print(f"Davies-Bouldin Index: {db_score:.4f} (lower is better)\n")
+
+# Print evaluation results
+evaluate_clustering(X_scaled, kmeans_labels, "K-Means")
+evaluate_clustering(X_scaled, kmedoids_labels, "K-Medoids (PAM)")
+
+# Optional: plot clustering results on first two features
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.title("K-Means Clustering")
+plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=kmeans_labels, cmap='viridis', s=50)
+plt.xlabel(data.feature_names[0])
+plt.ylabel(data.feature_names[1])
+
+plt.subplot(1, 2, 2)
+plt.title("K-Medoids Clustering")
+plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=kmedoids_labels, cmap='viridis', s=50)
+plt.xlabel(data.feature_names[0])
+plt.ylabel(data.feature_names[1])
+
+plt.tight_layout()
+plt.show()
