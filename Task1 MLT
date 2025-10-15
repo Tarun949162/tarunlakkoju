@@ -1,0 +1,37 @@
+!pip install mlxtend --quiet
+
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, fpgrowth, association_rules
+
+dataset = [
+    ['milk', 'bread', 'butter'],
+    ['beer', 'bread'],
+    ['milk', 'bread', 'beer', 'butter'],
+    ['bread', 'butter'],
+    ['milk', 'beer']
+]
+
+te = TransactionEncoder()
+te_ary = te.fit(dataset).transform(dataset)
+df = pd.DataFrame(te_ary, columns=te.columns_)
+
+print("One-hot encoded DataFrame:\n", df)
+
+min_support = 0.4
+frequent_itemsets_apriori = apriori(df, min_support=min_support, use_colnames=True)
+print("\nFrequent itemsets found by Apriori:")
+print(frequent_itemsets_apriori)
+
+frequent_itemsets_fpgrowth = fpgrowth(df, min_support=min_support, use_colnames=True)
+print("\nFrequent itemsets found by FP-growth:")
+print(frequent_itemsets_fpgrowth)
+
+min_confidence = 0.7
+rules_apriori = association_rules(frequent_itemsets_apriori, metric="confidence", min_threshold=min_confidence)
+print("\nAssociation Rules (Apriori):")
+print(rules_apriori[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
+
+rules_fpgrowth = association_rules(frequent_itemsets_fpgrowth, metric="confidence", min_threshold=min_confidence)
+print("\nAssociation Rules (FP-growth):")
+print(rules_fpgrowth[['antecedents', 'consequents', 'support', 'confidence', 'lift']])
